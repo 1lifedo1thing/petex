@@ -1,0 +1,73 @@
+name: Desktop packages
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: packages-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  package:
+    name: ${{ matrix.name }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Apple Silicon
+            os: macos-15
+            target: mac
+            platform: darwin
+            arch: arm64
+          - name: macOS Intel
+            os: macos-15-intel
+            target: mac
+            platform: darwin
+            arch: x64
+          - name: Windows x64
+            os: windows-latest
+            target: win
+            platform: win32
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check source and unit tests
+        run: npm run check
+      - name: Test desktop interactions
+        run: npm run test:desktop
+      - name: Build installers
+        run: npm run dist:${{ matrix.target }} -- --${{ matrix.arch }}
+      - name: Verify and test the packaged app
+        run: npm run test:packaged -- ${{ matrix.platform }} ${{ matrix.arch }}
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pedex-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.exe
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics-${{ matrix.platform }}-${{ matrix.arch }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7

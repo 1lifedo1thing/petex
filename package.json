@@ -1,0 +1,78 @@
+{
+  "name": "pedex",
+  "version": "0.1.3",
+  "private": true,
+  "description": "Desktop pets for macOS and Windows.",
+  "main": "app/main.cjs",
+  "author": "Pedex contributors",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "test:desktop": "playwright test",
+    "check": "node --check app/main.cjs && node --check app/library.cjs && node --check app/preload.cjs && node --check app/renderer/settings.js && node --check app/renderer/pet.js && npm test",
+    "pack": "electron-builder --dir",
+    "dist:mac": "electron-builder --mac dmg zip --publish never",
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "icons": "node scripts/icons.cjs",
+    "verify:package": "node scripts/verify-package.cjs",
+    "test:packaged": "node scripts/test-package.cjs"
+  },
+  "build": {
+    "appId": "app.pedex.desktop",
+    "productName": "Pedex",
+    "asar": true,
+    "files": [
+      "app/**/*",
+      "package.json",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "mac": {
+      "category": "public.app-category.entertainment",
+      "icon": "build/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "identity": null,
+      "appId": "ad.neko.petex"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "asarUnpack": [
+      "**/node_modules/sharp/**/*",
+      "**/node_modules/@img/**/*"
+    ],
+    "beforePack": "scripts/before-pack.cjs"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iebb/petex.git"
+  }
+}

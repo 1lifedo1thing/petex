@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' pet-asset:; connect-src 'none'; object-src 'none'; base-uri 'none'">
+<title>Pedex</title><link rel="stylesheet" href="settings.css">
+</head>
+<body>
+<div class="titlebar">Pedex</div>
+<main>
+  <section class="selected-pet" aria-label="Selected pet">
+    <canvas id="hero-pet" aria-label="Selected pet preview"></canvas>
+    <div class="selected-details"><h1 id="pet-name">Miso</h1><p id="presence">Visible on desktop</p>
+      <div class="animation-controls"><select id="animation" aria-label="Animation"></select><button id="play">Play</button></div>
+    </div>
+  </section>
+  <section aria-labelledby="collection-title">
+    <div class="section-heading"><h2 id="collection-title">Pets <span id="pet-count">1</span></h2><button id="discover" class="text-button">Import from Codex</button></div>
+    <div class="pet-list" id="pet-list" aria-label="Choose a pet"></div>
+    <div class="import-note">Drop a pet folder or <button id="import-file" class="text-button">import a file</button><span>ZIP · JSON · PNG · WebP</span></div>
+  </section>
+  <section aria-labelledby="preferences-title"><div class="section-heading"><h2 id="preferences-title">Settings</h2></div>
+    <div class="preferences-grid">
+      <div class="setting size-setting"><label for="size">Size</label><input id="size" type="range" min="48" max="240" step="8" value="160" aria-label="Pet size"><output id="size-description" for="size">160 px</output></div>
+      <label class="setting toggle-setting"><span>Always on top</span><input id="alwaysOnTop" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+      <label class="setting toggle-setting"><span>Animations</span><input id="motion" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+      <label class="setting toggle-setting"><span>Random animations</span><input id="randomAnimations" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+      <label class="setting toggle-setting"><span>Follow cursor<span id="gaze-description" class="setting-description" hidden></span></span><input id="followCursor" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+      <label class="setting toggle-setting"><span>Launch at login<span id="login-description" class="setting-description" hidden></span></span><input id="launchAtLogin" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+      <label class="setting toggle-setting"><span>Show pet</span><input id="visible" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+    </div>
+  </section>
+  <footer><div class="footer-links"><button class="text-button" id="home">Reset position</button><a id="github" class="text-button" href="https://github.com/iebb/petex">GitHub</a></div><button id="done">Done</button></footer>
+</main>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<div id="drop-overlay" hidden>Drop to import</div>
+<script type="module" src="settings.js"></script>
+</body></html>
