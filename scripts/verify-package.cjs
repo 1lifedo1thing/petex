@@ -20,7 +20,7 @@ function verify(platform, arch) {
   assert.equal(metadata.version, require('../package.json').version);
   assert.equal(metadata.license, 'Apache-2.0');
   for (const file of fs.readdirSync('app', {recursive: true}).filter(f => fs.statSync(path.join('app', f)).isFile())) {
-    assert.ok(fs.readFileSync(path.join('app', file)).equals(asar.extractFile(paths.archive, `app/${file.replaceAll('\\', '/')}`)), `Outdated packaged file: ${file}`);
+    assert.ok(fs.readFileSync(path.join('app', file)).equals(asar.extractFile(paths.archive, path.join('app', file))), `Outdated packaged file: ${file}`);
   }
   for (const file of ['LICENSE', 'NOTICE']) assert.ok(fs.readFileSync(file).equals(asar.extractFile(paths.archive, file)), `Missing ${file}`);
   const native = asar.listPackage(paths.archive).find(file => file.includes(`sharp-${platform}-${arch}`) && file.endsWith('.node'));

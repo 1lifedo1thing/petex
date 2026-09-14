@@ -6,7 +6,7 @@ Pedex lives in the menu bar / system tray. Its transparent companion window floa
 
 ## Run
 
-Requires Node.js 22 or newer.
+Requires Node.js 22.12 or newer. The first desktop run downloads Electron before starting the app or its tests.
 
 ```sh
 npm ci
