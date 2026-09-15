@@ -66,8 +66,12 @@ test('keeps native capabilities isolated and Done leaves the pet running',async(
   const preferences=await application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().map(w=>w.webContents.getLastWebPreferences()));
   for(const p of preferences){expect(p.nodeIntegration).toBe(false);expect(p.contextIsolation).toBe(true);expect(p.sandbox).toBe(true);}
   const denied=await petPage.evaluate(async()=>{try{await window.pedex.updateSettings({size:999});return false;}catch{return true;}});expect(denied).toBe(true);
-  await settingsPage.getByRole('button',{name:'Done',exact:true}).click();
+  await Promise.all([
+    settingsPage.waitForEvent('close'),
+    settingsPage.getByRole('button',{name:'Done',exact:true}).click({noWaitAfter:true}).catch(error=>{if(!settingsPage.isClosed())throw error;}),
+  ]);
   await expect.poll(async()=>application.windows().length).toBe(1);
+  expect(await application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].getTitle())).toBe('Pedex pet');
 });
 
 test('plays selected and random animation rows, then returns to idle',async()=>{
