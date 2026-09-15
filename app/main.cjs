@@ -186,6 +186,10 @@ function configureIPC() {
   });
   handler('settings:close', settingsOnly, () => settingsWindow.close());
   handler('repository:open', settingsOnly, () => shell.openExternal('https://github.com/iebb/petex'));
+  handler('pets:open-folder', settingsOnly, async () => {
+    const error = await shell.openPath(library.petsPath);
+    if (error) throw new Error(error);
+  });
   handler('pet:menu', () => [petWindow], petMenu);
   handler('pet:press-start', () => [petWindow], () => {
     drag = new DragTracker(screen.getCursorScreenPoint(), petWindow.getBounds(), performance.now());

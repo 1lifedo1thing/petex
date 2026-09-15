@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('pedex', {
   home: () => invoke('pet:home'),
   playAnimation: name => invoke('pet:play', name),
   openRepository: () => invoke('repository:open'),
+  openPetsFolder: () => invoke('pets:open-folder'),
   closeSettings: () => invoke('settings:close'),
   menu: () => invoke('pet:menu'),
   pressStart: () => invoke('pet:press-start'),

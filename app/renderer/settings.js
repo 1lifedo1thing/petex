@@ -78,6 +78,7 @@ $('size').addEventListener('input',()=>{const size=Number($('size').value);$('si
 $('size').addEventListener('change',()=>update({size:Number($('size').value)}));
 $('home').onclick=async()=>{if(await run(async()=>{await api.home();return true;}))toast('Position reset.');};
 $('github').onclick=event=>{event.preventDefault();run(()=>api.openRepository());};
+$('open-folder').onclick=()=>run(()=>api.openPetsFolder());
 $('done').onclick=()=>run(()=>api.closeSettings());
 let depth=0;
 window.addEventListener('dragenter',event=>{event.preventDefault();if(event.dataTransfer.types.includes('Files')){depth++;$('drop-overlay').hidden=false;}});

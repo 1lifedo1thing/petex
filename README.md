@@ -20,6 +20,7 @@ npm start
 - **Import a file** accepts a `pet.json`, a ZIP containing one pet, or a raw PNG / WebP sprite atlas. Files and folders can also be dropped onto settings.
 - Importing copies the artwork into Pedex's private library. Identical artwork is deduplicated. Original files are never changed.
 - Right-click an imported companion card, or focus it and press Delete, to remove the Pedex copy.
+- **Open folder** opens the imported pets folder in Finder or File Explorer.
 
 Supported Codex formats:
 
