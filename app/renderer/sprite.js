@@ -50,39 +50,36 @@ export function gazeFrame(x, y) {
 function ellipse(ctx, x,y,rx,ry, fill) {ctx.beginPath(); ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2); ctx.fillStyle=fill;ctx.fill();}
 function shape(ctx, data, color) {ctx.fillStyle=color;ctx.fill(new Path2D(data));}
 export function drawMiso(ctx, time = 0, state = 'idle', gaze = null, motion = true, actionTime = time) {
-  const breathe = motion ? Math.sin(time / 800) * 1.5 : 0;
+  const breathe = motion ? Math.sin(time / 800) : 0;
   const hopping = state === 'jumping' ? -Math.sin(Math.min(1, actionTime / 840) * Math.PI) * 22 : 0;
   const walking = state.startsWith('running-');
   const sway = walking ? Math.sin(time/85)*3 : 0;
   ctx.save(); ctx.translate(0, breathe + hopping);
   if (state === 'running-left') {ctx.translate(192,0);ctx.scale(-1,1);}
   // Original vector companion. It is independent of the imported Codex artwork.
-  ctx.save();ctx.translate(147,151);ctx.rotate((motion ? Math.sin(time/650)*0.09 : 0) + (walking ? .3 : 0));
-  shape(ctx,'M -7 14 C 34 16 42 -8 30 -30 C 25 -40 13 -36 16 -26 C 23 -11 11 -5 -7 -8 Z','#c78144');ctx.restore();
-  ellipse(ctx,95,145,47,44,'#e6a55f');
-  ellipse(ctx,94,150,29,31,'#ffdda0');
-  ellipse(ctx,68,179+sway,19,11,'#d98e49');ellipse(ctx,119,179-sway,19,11,'#d98e49');
+  const fur='#aaa9a5', cream='#fff4e1', stripe='#7e7e7b', ink='#50514f';
+  ctx.save();ctx.translate(120,158);ctx.rotate((motion ? Math.sin(time/650)*0.09 : 0) + (walking ? .3 : 0));
+  ctx.beginPath();ctx.moveTo(0,9);ctx.bezierCurveTo(27,13,34,-8,23,-27);ctx.strokeStyle=fur;ctx.lineWidth=9;ctx.lineCap='round';ctx.stroke();ctx.restore();
+  ellipse(ctx,96,143,28,39,fur);
+  ellipse(ctx,96,147,18,28,cream);
+  ellipse(ctx,81,178+sway,10,10,fur);ellipse(ctx,111,178-sway,10,10,fur);
   if (state === 'waving') {
-    ctx.save();ctx.translate(143,128);ctx.rotate(Math.sin(time/100)*.3-.5);ellipse(ctx,0,-13,12,26,'#e6a55f');ellipse(ctx,0,-27,6,7,'#ffc38e');ctx.restore();
-  } else {ellipse(ctx,135,150+sway,11,24,'#e6a55f');}
-  ellipse(ctx,54,150-sway,11,24,'#e6a55f');
-  shape(ctx,'M 42 81 L 38 30 Q 39 19 49 25 L 77 47 Q 98 41 119 47 L 145 24 Q 154 19 155 33 L 150 85 Z','#e6a55f');
-  shape(ctx,'M 47 61 L 46 35 L 67 53 Z','#edb28b');shape(ctx,'M 131 52 L 147 35 L 146 62 Z','#edb28b');
-  ellipse(ctx,97,88,62,48,'#efb775');
-  shape(ctx,'M 84 43 Q 85 60 90 63 Q 95 59 92 43 Z M 99 42 Q 98 61 104 63 Q 110 59 108 43 Z','#ce8a49');
-  ellipse(ctx,82,104,18,14,'#ffdda0');ellipse(ctx,109,104,18,14,'#ffdda0');
+    ctx.save();ctx.translate(124,127);ctx.rotate(Math.sin(time/100)*.3-.5);ellipse(ctx,0,-13,7,23,fur);ctx.restore();
+  } else {ellipse(ctx,122,146+sway,7,21,fur);}
+  ellipse(ctx,70,146-sway,7,21,fur);
+  shape(ctx,'M 49 76 L 47 26 Q 47 15 56 20 L 79 42 Q 96 38 113 42 L 136 20 Q 145 15 145 26 L 143 76 Z',fur);
+  shape(ctx,'M 55 52 L 54 29 L 72 46 Z M 120 46 L 138 29 L 137 52 Z',cream);
+  ellipse(ctx,96,79,48,40,fur);
+  shape(ctx,'M 80 41 Q 81 58 86 58 Q 90 56 89 40 Z M 92 39 Q 93 62 98 62 Q 103 60 101 39 Z M 105 40 Q 106 58 111 57 Q 116 54 114 42 Z',stripe);
+  ellipse(ctx,96,96,34,22,cream);
   const eyeX = gaze ? Math.max(-5,Math.min(5,gaze.x/45)) : 0;
   const eyeY = gaze ? Math.max(-4,Math.min(4,gaze.y/55)) : 0;
   const blink = motion && time % 4700 > 4520;
-  for (const x of [73,120]) {
-    ellipse(ctx,x+eyeX,85+eyeY,5.4,blink?1.3:7.2,'#493729');
-    if (!blink) ellipse(ctx,x+eyeX+1.5,83+eyeY,1.5,2,'#fff4dc');
+  for (const x of [78,114]) {
+    ellipse(ctx,x+eyeX,77+eyeY,6,blink?1.3:8.5,ink);
+    if (!blink) ellipse(ctx,x+eyeX+1.5,74+eyeY,1.8,2,cream);
   }
-  ellipse(ctx,56,101,9,4,'#e6a07a');ellipse(ctx,136,101,9,4,'#e6a07a');
-  shape(ctx,'M 91 100 Q 97 96 103 100 Q 98 108 95 105 Z','#88583e');
-  ctx.strokeStyle='#80543a';ctx.lineWidth=1.8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(97,105);ctx.quadraticCurveTo(95,114,89,109);ctx.moveTo(97,105);ctx.quadraticCurveTo(99,114,105,109);ctx.stroke();
-  shape(ctx,'M 65 128 Q 96 139 127 127 L 127 134 Q 97 146 65 136 Z','#61724a');
-  ellipse(ctx,98,139,7,8,'#f7d77d');ellipse(ctx,98,141,1.3,2,'#ab8337');
+  ctx.strokeStyle=ink;ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(88,95);ctx.quadraticCurveTo(96,104,104,95);ctx.stroke();
   ctx.restore();
 }
 export class PetSprite {

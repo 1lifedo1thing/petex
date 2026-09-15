@@ -1,0 +1,4 @@
+Generated with the built-in image_gen tool from the user-provided icon-source.png.
+
+Prompt:
+Use case: background-extraction / logo-brand. Derive one macOS menu bar template icon from the reference cat. A single solid pure-black silhouette of this cat's HEAD, isolated on a genuinely transparent background. Preserve the reference's rounded triangular ears, round cheeks, and slight clockwise head tilt. Complete the cropped lower head into a clean rounded chin so the entire head is visible. No body, no eyes, no mouth, no stripes, no inner ear holes, no blue background, no gray colors, no texture, no shading, no shadow, no frame, no text. Strong simple continuous silhouette, optimized to stay recognizable at 18 pixels tall. Centered on a square canvas with 10 percent transparent padding. This is a production tray icon.

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, Tray, nativeImage, screen, protocol, net, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, Tray, nativeImage, nativeTheme, screen, protocol, net, shell } = require('electron');
 const path = require('node:path');
 const os = require('node:os');
 const fs = require('node:fs/promises');
@@ -255,9 +255,14 @@ if (locked) app.whenReady().then(async () => {
   await petWindow.loadFile(rendererPath('pet.html'));
   if (!settings.position) resetPosition();
   applySettings();
-  const trayIcon = nativeImage.createFromPath(path.join(__dirname, 'assets', process.platform === 'darwin' ? 'trayTemplate.png' : 'tray.png'));
-  if (process.platform === 'darwin') trayIcon.setTemplateImage(true);
-  tray = new Tray(trayIcon);
+  function trayIcon() {
+    const file = process.platform === 'darwin' ? 'trayTemplate.png' : nativeTheme.shouldUseDarkColorsForSystemIntegratedUI ? 'trayLight.png' : 'tray.png';
+    const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', file));
+    if (process.platform === 'darwin') icon.setTemplateImage(true);
+    return icon;
+  }
+  tray = new Tray(trayIcon());
+  nativeTheme.on('updated', () => {if (tray && !tray.isDestroyed()) tray.setImage(trayIcon());});
   tray.setToolTip('Pedex');
   tray.on('double-click', showSettings);
   updateTray();

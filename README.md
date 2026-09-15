@@ -66,7 +66,7 @@ GitHub downloads are unsigned. No in-app updater is configured.
 
 For cross-packaging, install Sharp for the target first (for example, `npm install --no-save --os=win32 --cpu=x64 sharp`), then run the build. This replaces the host native dependency; restore it with `npm ci` before running local tests. The packaging hook rejects missing target binaries. Native libraries are unpacked as required by [Sharp’s Electron instructions](https://sharp.pixelplumbing.com/install/#electron).
 
-`build/icon.svg` is the editable icon source; `node scripts/icons.cjs` regenerates PNG/ICO assets and, on macOS, ICNS. All generated icons are committed so Windows builds don't require Apple's `iconutil`.
+`build/icon-source.png` and `build/tray-source.png` are the icon sources; `node scripts/icons.cjs` regenerates PNG/ICO assets and, on macOS, ICNS. All generated icons are committed so Windows builds don't require Apple's `iconutil`.
 
 For isolated testing, `PEDEX_DATA_DIR` changes only Pedex's storage directory and disables login registration; `PEDEX_CODEX_HOME` points discovery at a fixture home. Normal use needs neither variable.
 
