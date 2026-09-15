@@ -18,7 +18,7 @@ test.beforeEach(async()=>{
   await fs.writeFile(path.join(appAssets,'dewey-spritesheet-v5-fixture.webp'),atlas);
   const codexArchive=path.join(root,'app.asar');await asar.createPackage(path.join(root,'codex-app'),codexArchive);
   application=await electron.launch({...(process.env.PEDEX_EXECUTABLE ? {executablePath:process.env.PEDEX_EXECUTABLE,args:[]} : {args:[path.join(__dirname,'../..')]}),env:{...process.env,PEDEX_CODEX_APP:codexArchive,PEDEX_DATA_DIR:path.join(root,'data'),PEDEX_CODEX_HOME:path.join(root,'codex')}});
-  await expect.poll(async()=>application.windows().length).toBe(2);
+  await expect.poll(async()=>application.windows().map(page=>path.basename(page.url())).sort(),{timeout:20000}).toEqual(['pet.html','settings.html']);
   settingsPage=application.windows().find(p=>p.url().endsWith('settings.html'));petPage=application.windows().find(p=>p.url().endsWith('pet.html'));
   await expect(settingsPage.locator('h1')).toHaveText('Miso');
 });
