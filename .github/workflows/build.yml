@@ -60,7 +60,7 @@ jobs:
       - name: Upload installers
         uses: actions/upload-artifact@v4
         with:
-          name: Pedex-${{ matrix.platform }}-${{ matrix.arch }}
+          name: Petex-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
             release/*.dmg
             release/*.zip
@@ -91,7 +91,7 @@ jobs:
           node-version: 22
       - uses: actions/download-artifact@v4
         with:
-          pattern: Pedex-*
+          pattern: Petex-*
           path: release
           merge-multiple: true
       - name: Set version from commit height

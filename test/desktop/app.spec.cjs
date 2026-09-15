@@ -35,9 +35,9 @@ test('renders the native companion, settings, and working controls',async()=>{
   await expect(settingsPage.locator('#randomAnimations')).toBeDisabled();
   await expect(settingsPage.locator('#play')).toBeDisabled();
   await settingsPage.locator('#visible').uncheck({force:true});
-  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').isVisible())).toBe(false);
+  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Petex pet').isVisible())).toBe(false);
   await settingsPage.getByRole('button',{name:'Reset position'}).click();
-  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').isVisible())).toBe(true);
+  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Petex pet').isVisible())).toBe(true);
 });
 test('discovers real-format Codex pets, deduplicates and persists selection',async()=>{
   await settingsPage.getByRole('button',{name:'Import from Codex'}).click();
@@ -71,7 +71,7 @@ test('keeps native capabilities isolated and Done leaves the pet running',async(
     settingsPage.getByRole('button',{name:'Done',exact:true}).click({noWaitAfter:true}).catch(error=>{if(!settingsPage.isClosed())throw error;}),
   ]);
   await expect.poll(async()=>application.windows().length).toBe(1);
-  expect(await application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].getTitle())).toBe('Pedex pet');
+  expect(await application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].getTitle())).toBe('Petex pet');
 });
 
 test('plays selected and random animation rows, then returns to idle',async()=>{
@@ -102,7 +102,7 @@ async function preparePointerTest(){
   await expect(settingsPage.locator('h1')).toHaveText('Sunny test pet');
   await settingsPage.evaluate(()=>window.pedex.updateSettings({randomAnimations:false,followCursor:false}));
   dragOrigin=await application.evaluate(({screen,BrowserWindow})=>{
-    const win=BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet');
+    const win=BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Petex pet');
     const origin=win.getBounds();win.setIgnoreMouseEvents(false);
     globalThis.testCursor={x:origin.x+96,y:origin.y+90};
     screen.getCursorScreenPoint=()=>({...globalThis.testCursor});
@@ -127,7 +127,7 @@ test('native drag follows movement, keeps its facing when stopped, and cancels l
   await petPage.mouse.down();
   await petPage.evaluate(()=>window.pedex.getState());
   await application.evaluate(()=>{globalThis.testCursor.x-=80;});
-  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').getBounds().x)).toBe(dragOrigin.x-80);
+  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Petex pet').getBounds().x)).toBe(dragOrigin.x-80);
   // v2 look-left (sector 12), not an animation row or a right-facing rest frame.
   await expect.poll(desktopPixel).toEqual([140,60,120,255]);
   const frames=await petPage.locator('canvas').evaluate(async node=>{
@@ -135,7 +135,7 @@ test('native drag follows movement, keeps its facing when stopped, and cancels l
   });
   expect(frames.every(pixel=>JSON.stringify(pixel)==='[140,60,120,255]')).toBe(true);
   await application.evaluate(()=>{globalThis.testCursor.y-=80;});
-  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').getBounds().y)).toBe(dragOrigin.y-80);
+  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Petex pet').getBounds().y)).toBe(dragOrigin.y-80);
   // A further upward movement lets the filtered heading settle to up.
   for(let i=0;i<6;i++){await application.evaluate(()=>{globalThis.testCursor.y-=10;});await new Promise(resolve=>setTimeout(resolve,30));}
   await expect.poll(desktopPixel).toEqual([20,60,120,255]);
@@ -149,7 +149,7 @@ test('supports 48 px pets and persists the smaller size',async()=>{
   await settingsPage.locator('#size').press('Home');
   await expect(settingsPage.locator('#size')).toHaveValue('48');
   await expect(settingsPage.locator('#size-description')).toHaveText('48 px');
-  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').getBounds().width)).toBe(80);
+  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Petex pet').getBounds().width)).toBe(80);
   await expect.poll(async()=>JSON.parse(await fs.readFile(path.join(root,'data','settings.json'),'utf8')).size).toBe(48);
 });
 

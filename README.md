@@ -1,8 +1,8 @@
-# Pedex
+# Petex
 
 A standalone macOS and Windows pet app with no chat, coding tools, accounts, or network services.
 
-Pedex lives in the menu bar / system tray. Its transparent companion window floats on the desktop. Click your pet to wave, hold for 550 ms to jump, drag to move, and right-click for its menu. Movement beyond 6 pixels starts a drag and cancels the long press. During dragging, v2 pets look in the movement direction using all 16 gaze poses; v1 pets use their left/right movement rows. Position updates run approximately every 16 ms while pressed, and direction filtering prevents flickering when slowing or stopping. Close settings with **Done** to leave your pet hanging out. Quit from the tray when you're finished.
+Petex lives in the menu bar / system tray. Its transparent companion window floats on the desktop. Click your pet to wave, hold for 550 ms to jump, drag to move, and right-click for its menu. Movement beyond 6 pixels starts a drag and cancels the long press. During dragging, v2 pets look in the movement direction using all 16 gaze poses; v1 pets use their left/right movement rows. Position updates run approximately every 16 ms while pressed, and direction filtering prevents flickering when slowing or stopping. Close settings with **Done** to leave your pet hanging out. Quit from the tray when you're finished.
 
 ## Run
 
@@ -18,8 +18,8 @@ npm start
 - **Import from Codex** imports custom pets from `$CODEX_HOME/pets`, or `~/.codex/pets` by default (`%USERPROFILE%\.codex\pets` on Windows).
 - **Import folder** opens a folder picker. Choose the folder containing `pet.json` and its sprite sheet.
 - **Import a file** accepts a `pet.json`, a ZIP containing one pet, or a raw PNG / WebP sprite atlas. Files and folders can also be dropped onto settings.
-- Importing copies the artwork into Pedex's private library. Identical artwork is deduplicated. Original files are never changed.
-- Select a pet and click **Delete** to remove the Pedex copy after confirmation. Right-click and the Delete key also work. Original source files stay untouched; Miso is always available.
+- Importing copies the artwork into Petex's private library. Identical artwork is deduplicated. Original files are never changed.
+- Select a pet and click **Delete** to remove the Petex copy after confirmation. Right-click and the Delete key also work. Original source files stay untouched; Miso is always available.
 - **Open folder** opens the imported pets folder in Finder or File Explorer.
 
 Supported Codex formats:
@@ -41,7 +41,7 @@ Every cell is 192 × 208. Standard rows retain Codex's frame counts and duration
 }
 ```
 
-The sprite sheet must be a static PNG or WebP, smaller than 32 MB, inside the pet folder. ZIPs must contain exactly one manifest. File paths and decoded image dimensions are validated. Miso is original vector artwork included with Pedex; imported artwork remains subject to its own license. Codex built-in artwork is not bundled. **Built-in pets** copies compatible atlases from your installed ChatGPT / Codex app. If the app is not detected, select its application bundle, installation folder, or app.asar. Codex discovery and built-in pet imports are available in the GitHub build. The Mac App Store build supports only user-selected pet files and folders.
+The sprite sheet must be a static PNG or WebP, smaller than 32 MB, inside the pet folder. ZIPs must contain exactly one manifest. File paths and decoded image dimensions are validated. Miso is original vector artwork included with Petex; imported artwork remains subject to its own license. Codex built-in artwork is not bundled. **Built-in pets** copies compatible atlases from your installed ChatGPT / Codex app. If the app is not detected, select its application bundle, installation folder, or app.asar. Codex discovery and built-in pet imports are available in the GitHub build. The Mac App Store build supports only user-selected pet files and folders.
 
 ## Simple settings
 
@@ -68,7 +68,7 @@ For cross-packaging, install Sharp for the target first (for example, `npm insta
 
 `build/icon-source.png` and `build/tray-source.png` are the icon sources; `node scripts/icons.cjs` regenerates PNG/ICO assets and, on macOS, ICNS. All generated icons are committed so Windows builds don't require Apple's `iconutil`.
 
-For isolated testing, `PEDEX_DATA_DIR` changes only Pedex's storage directory and disables login registration; `PEDEX_CODEX_HOME` points discovery at a fixture home. Normal use needs neither variable.
+For isolated testing, `PEDEX_DATA_DIR` changes only Petex's storage directory and disables login registration; `PEDEX_CODEX_HOME` points discovery at a fixture home. Normal use needs neither variable.
 
 Implementation references: [Electron window interactions](https://www.electronjs.org/docs/latest/tutorial/custom-window-interactions), [Electron context isolation](https://www.electronjs.org/docs/latest/tutorial/context-isolation), and [electron-builder platform builds](https://www.electron.build/docs/features/multi-platform-build/).
 

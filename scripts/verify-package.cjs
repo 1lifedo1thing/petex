@@ -5,11 +5,11 @@ const assert = require('node:assert/strict');
 const {execFileSync} = require('node:child_process');
 function packagePaths(platform = process.platform, arch = process.arch) {
   if (platform === 'darwin') {
-    const bundle = path.resolve(`release/mac${arch === 'arm64' ? '-arm64' : ''}/Pedex.app`);
-    return {bundle, archive: path.join(bundle, 'Contents/Resources/app.asar'), executable: path.join(bundle, 'Contents/MacOS/Pedex')};
+    const bundle = path.resolve(`release/mac${arch === 'arm64' ? '-arm64' : ''}/Petex.app`);
+    return {bundle, archive: path.join(bundle, 'Contents/Resources/app.asar'), executable: path.join(bundle, 'Contents/MacOS/Petex')};
   }
   if (platform === 'win32') {
-    return {archive: path.resolve('release/win-unpacked/resources/app.asar'), executable: path.resolve('release/win-unpacked/Pedex.exe')};
+    return {archive: path.resolve('release/win-unpacked/resources/app.asar'), executable: path.resolve('release/win-unpacked/Petex.exe')};
   }
   throw new Error(`Unsupported platform: ${platform}`);
 }

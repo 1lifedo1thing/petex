@@ -26,7 +26,7 @@ function parseManifest(data) {
   try { manifest = JSON.parse(data.toString('utf8')); } catch { throw new Error('pet.json is not valid JSON.'); }
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) throw new Error('pet.json must contain a pet object.');
   const spriteVersionNumber = manifest.spriteVersionNumber ?? 1;
-  if (![1, 2].includes(spriteVersionNumber)) throw new Error('This pet uses an unsupported sprite version. Pedex supports versions 1 and 2.');
+  if (![1, 2].includes(spriteVersionNumber)) throw new Error('This pet uses an unsupported sprite version. Petex supports versions 1 and 2.');
   return { displayName: String(manifest.displayName || manifest.name || manifest.id || 'Imported pet').slice(0, 80), description: String(manifest.description || 'Imported from a Codex pet.').slice(0, 300), spriteVersionNumber, spritesheetPath: safeRelative(manifest.spritesheetPath || 'spritesheet.webp') };
 }
 async function validateSprite(bytes, version) {

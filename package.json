@@ -1,10 +1,10 @@
 {
-  "name": "pedex",
+  "name": "petex",
   "version": "1.0.0",
   "private": true,
   "description": "Desktop pets for macOS and Windows.",
   "main": "app/main.cjs",
-  "author": "Pedex contributors",
+  "author": "Petex contributors",
   "license": "Apache-2.0",
   "scripts": {
     "start": "electron .",
@@ -23,7 +23,7 @@
   },
   "build": {
     "appId": "app.pedex.desktop",
-    "productName": "Pedex",
+    "productName": "Petex",
     "asar": true,
     "files": [
       "app/**/*",
@@ -70,7 +70,7 @@
       "entitlements": "build/entitlements.mas.plist",
       "entitlementsInherit": "build/entitlements.mas.inherit.plist",
       "hardenedRuntime": false,
-      "artifactName": "Pedex-${version}-mas-${arch}.${ext}",
+      "artifactName": "Petex-${version}-mas-${arch}.${ext}",
       "extendInfo": {
         "ITSAppUsesNonExemptEncryption": false,
         "LSApplicationCategoryType": "public.app-category.entertainment"

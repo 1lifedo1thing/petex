@@ -7,8 +7,9 @@ const { Library, normalizeSettings } = require('./library.cjs');
 const {findArchive, readBuiltins} = require('./codex-builtins.cjs');
 const { DragTracker } = require('./drag.cjs');
 
-if (process.env.PEDEX_DATA_DIR) app.setPath('userData', process.env.PEDEX_DATA_DIR);
-app.setName('Pedex');
+// Keep the original library location so renaming the app preserves existing pets.
+app.setPath('userData', process.env.PEDEX_DATA_DIR || path.join(app.getPath('appData'), 'Pedex'));
+app.setName('Petex');
 // Anonymous image loads need a CORS-enabled scheme to preserve canvas alpha reads.
 protocol.registerSchemesAsPrivileged([{scheme: 'pet-asset', privileges: {standard: true, secure: true, supportFetchAPI: true, corsEnabled: true}}]);
 const locked = app.requestSingleInstanceLock();
@@ -57,7 +58,7 @@ function applySettings() {
 }
 function showSettings() {
   if (settingsWindow && !settingsWindow.isDestroyed()) { settingsWindow.show(); settingsWindow.focus(); return; }
-  settingsWindow = new BrowserWindow({width: 660, height: 660, minWidth: 560, minHeight: 600, title: 'Pedex', backgroundColor: '#f7f8f2', titleBarStyle: 'hidden', ...(process.platform === 'darwin' ? {trafficLightPosition: {x: 20, y: 21}} : {titleBarOverlay: {color: '#f7f8f2', symbolColor: '#354330', height: 42}}), autoHideMenuBar: true, show: false, webPreferences: windowOptions()});
+  settingsWindow = new BrowserWindow({width: 660, height: 660, minWidth: 560, minHeight: 600, title: 'Petex', backgroundColor: '#f7f8f2', titleBarStyle: 'hidden', ...(process.platform === 'darwin' ? {trafficLightPosition: {x: 20, y: 21}} : {titleBarOverlay: {color: '#f7f8f2', symbolColor: '#354330', height: 42}}), autoHideMenuBar: true, show: false, webPreferences: windowOptions()});
   secure(settingsWindow);
   settingsWindow.loadFile(rendererPath('settings.html'));
   settingsWindow.once('ready-to-show', () => {settingsWindow.show(); settingsWindow.focus();});
@@ -66,14 +67,14 @@ function showSettings() {
 function updateTray() {
   if (!tray || !settings) return;
   tray.setContextMenu(Menu.buildFromTemplate([
-    {label: `Pedex · ${selectedPet().displayName}`, enabled: false},
+    {label: `Petex · ${selectedPet().displayName}`, enabled: false},
     {label: 'Settings…', click: showSettings},
     {type: 'separator'},
     {label: settings.visible ? 'Hide pet' : 'Show pet', click: () => enqueue(async () => {settings.visible = !settings.visible; applySettings(); await library.saveSettings(settings);})},
     {label: settings.motion ? 'Pause animation' : 'Resume animation', click: () => enqueue(async () => {settings.motion = !settings.motion; broadcast(); await library.saveSettings(settings);})},
     {label: 'Reset pet position', click: () => enqueue(async () => {settings.visible = true; resetPosition(); applySettings(); await library.saveSettings(settings);})},
     {type: 'separator'},
-    {label: 'Quit Pedex', accelerator: 'CommandOrControl+Q', click: () => app.quit()},
+    {label: 'Quit Petex', accelerator: 'CommandOrControl+Q', click: () => app.quit()},
   ]));
 }
 function petMenu() {
@@ -84,7 +85,7 @@ function petMenu() {
     {label: 'Settings…', click: showSettings},
     {label: 'Hide pet', click: () => enqueue(async () => {settings.visible = false; applySettings(); await library.saveSettings(settings);})},
     {type: 'separator'},
-    {label: 'Quit Pedex', click: () => app.quit()},
+    {label: 'Quit Petex', click: () => app.quit()},
   ]).popup({window: petWindow});
 }
 function handler(channel, allowed, action) {
@@ -194,7 +195,7 @@ function configureIPC() {
   handler('pets:remove', settingsOnly, id => enqueue(async () => {
     const pet = pets.find(p => p.id === id && !p.builtin);
     if (!pet) throw new Error('This pet cannot be removed.');
-    const answer = await dialog.showMessageBox(settingsWindow, {type: 'question', message: `Remove ${pet.displayName}?`, detail: 'This removes the Pedex copy. Your original Codex pet stays where it is.', buttons: ['Keep pet', 'Remove'], defaultId: 0, cancelId: 0});
+    const answer = await dialog.showMessageBox(settingsWindow, {type: 'question', message: `Remove ${pet.displayName}?`, detail: 'This removes the Petex copy. Your original Codex pet stays where it is.', buttons: ['Keep pet', 'Remove'], defaultId: 0, cancelId: 0});
     if (answer.response !== 1) return false;
     await library.remove(id); pets = await library.list();
     if (settings.petId === id) settings.petId = 'miso';
@@ -247,7 +248,7 @@ if (locked) app.whenReady().then(async () => {
       return new Response(response.body, {status: response.status, headers});
     } catch { return new Response('Not found', {status: 404}); }
   });
-  petWindow = new BrowserWindow({...dimensions(), frame: false, transparent: true, backgroundColor: '#00000000', hasShadow: false, resizable: false, maximizable: false, minimizable: false, fullscreenable: false, skipTaskbar: true, show: false, title: 'Pedex pet', webPreferences: windowOptions()});
+  petWindow = new BrowserWindow({...dimensions(), frame: false, transparent: true, backgroundColor: '#00000000', hasShadow: false, resizable: false, maximizable: false, minimizable: false, fullscreenable: false, skipTaskbar: true, show: false, title: 'Petex pet', webPreferences: windowOptions()});
   secure(petWindow);
   petWindow.setIgnoreMouseEvents(true, {forward: true});
   petWindow.on('close', e => {if (!quitting) {e.preventDefault(); petWindow.hide();}});
@@ -263,13 +264,13 @@ if (locked) app.whenReady().then(async () => {
   }
   tray = new Tray(trayIcon());
   nativeTheme.on('updated', () => {if (tray && !tray.isDestroyed()) tray.setImage(trayIcon());});
-  tray.setToolTip('Pedex');
+  tray.setToolTip('Petex');
   tray.on('double-click', showSettings);
   updateTray();
   if (process.platform === 'darwin') app.dock.hide();
-  Menu.setApplicationMenu(Menu.buildFromTemplate([{label: 'Pedex', submenu: [{label: 'Settings…', accelerator: 'CommandOrControl+,', click: showSettings}, {role: 'quit'}]}, {role: 'editMenu'}]));
+  Menu.setApplicationMenu(Menu.buildFromTemplate([{label: 'Petex', submenu: [{label: 'Settings…', accelerator: 'CommandOrControl+,', click: showSettings}, {role: 'quit'}]}, {role: 'editMenu'}]));
   setCursorPolling(50);
   screen.on('display-removed', () => enqueue(async () => {settings.position = clampPosition(petWindow.getBounds()); applySettings(); await library.saveSettings(settings);}));
   screen.on('display-metrics-changed', () => applySettings());
   if (!process.argv.includes('--hidden') && !app.getLoginItemSettings().wasOpenedAtLogin) showSettings();
-}).catch(error => {dialog.showErrorBox('Pedex could not start', error.message); app.quit();});
+}).catch(error => {dialog.showErrorBox('Petex could not start', error.message); app.quit();});
