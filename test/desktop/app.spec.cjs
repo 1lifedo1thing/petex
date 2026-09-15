@@ -1,7 +1,7 @@
 const {test,expect,_electron:electron}=require('@playwright/test');
 const asar=require('@electron/asar');
 const fs=require('node:fs/promises');const path=require('node:path');const os=require('node:os');const sharp=require('sharp');
-let application,settingsPage,petPage,root;
+let application,settingsPage,petPage,root,dragOrigin;
 test.beforeEach(async()=>{
   root=await fs.mkdtemp(path.join(os.tmpdir(),'pedex-desktop-'));
   const fixture=path.join(root,'codex','pets','fixture');await fs.mkdir(fixture,{recursive:true});
@@ -95,12 +95,14 @@ test('plays selected and random animation rows, then returns to idle',async()=>{
 
 async function preparePointerTest(){
   await settingsPage.getByRole('button',{name:'Import from Codex'}).click();
+  await expect(settingsPage.locator('h1')).toHaveText('Sunny test pet');
   await settingsPage.evaluate(()=>window.pedex.updateSettings({randomAnimations:false,followCursor:false}));
-  await application.evaluate(({screen,BrowserWindow})=>{
+  dragOrigin=await application.evaluate(({screen,BrowserWindow})=>{
     const win=BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet');
-    win.setPosition(300,300);win.setIgnoreMouseEvents(false);
-    globalThis.testCursor={x:396,y:390};
+    const origin=win.getBounds();win.setIgnoreMouseEvents(false);
+    globalThis.testCursor={x:origin.x+96,y:origin.y+90};
     screen.getCursorScreenPoint=()=>({...globalThis.testCursor});
+    return origin;
   });
   await petPage.mouse.move(96,90);
 }
@@ -119,22 +121,23 @@ test('a long press jumps once and release does not replace it with a wave',async
 test('native drag follows movement, keeps its facing when stopped, and cancels long press',async()=>{
   await preparePointerTest();
   await petPage.mouse.down();
-  await application.evaluate(()=>{globalThis.testCursor.x=316;});
-  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').getBounds().x)).toBe(220);
+  await petPage.evaluate(()=>window.pedex.getState());
+  await application.evaluate(()=>{globalThis.testCursor.x-=80;});
+  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').getBounds().x)).toBe(dragOrigin.x-80);
   // v2 look-left (sector 12), not an animation row or a right-facing rest frame.
   await expect.poll(desktopPixel).toEqual([140,60,120,255]);
   const frames=await petPage.locator('canvas').evaluate(async node=>{
     const samples=[];for(let i=0;i<9;i++){await new Promise(resolve=>setTimeout(resolve,80));samples.push(Array.from(node.getContext('2d').getImageData(192,208,1,1).data));}return samples;
   });
   expect(frames.every(pixel=>JSON.stringify(pixel)==='[140,60,120,255]')).toBe(true);
-  await application.evaluate(()=>{globalThis.testCursor.y=310;});
-  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').getBounds().y)).toBe(220);
+  await application.evaluate(()=>{globalThis.testCursor.y-=80;});
+  await expect.poll(()=>application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.getTitle()==='Pedex pet').getBounds().y)).toBe(dragOrigin.y-80);
   // A further upward movement lets the filtered heading settle to up.
   for(let i=0;i<6;i++){await application.evaluate(()=>{globalThis.testCursor.y-=10;});await new Promise(resolve=>setTimeout(resolve,30));}
   await expect.poll(desktopPixel).toEqual([20,60,120,255]);
   await petPage.mouse.up();
   await expect.poll(desktopPixel).toEqual([25,160,210,255]);
-  await expect.poll(async()=>JSON.parse(await fs.readFile(path.join(root,'data','settings.json'),'utf8')).position).toEqual({x:220,y:160});
+  await expect.poll(async()=>JSON.parse(await fs.readFile(path.join(root,'data','settings.json'),'utf8')).position).toEqual({x:dragOrigin.x-80,y:dragOrigin.y-140});
 });
 
 test('supports 48 px pets and persists the smaller size',async()=>{
@@ -172,4 +175,14 @@ test('imports built-in pets and deletes their local copies with the visible butt
   await fs.access(path.join(root,'app.asar'));
   await settingsPage.getByRole('button',{name:'Built-in pets',exact:true}).click();
   await expect(settingsPage.locator('h1')).toHaveText('Dewey');
+});
+
+test('Store mode hides and blocks Codex imports while retaining file imports',async()=>{
+  await application.evaluate(()=>{process.mas=true;});
+  await settingsPage.reload();
+  await expect(settingsPage.getByRole('button',{name:'Built-in pets',exact:true})).toBeHidden();
+  await expect(settingsPage.getByRole('button',{name:'Import from Codex',exact:true})).toBeHidden();
+  await expect(settingsPage.getByRole('button',{name:'import a file',exact:true})).toBeVisible();
+  const errors=await settingsPage.evaluate(async()=>{const result=[];for(const fn of [window.pedex.importBuiltins,window.pedex.discoverPets]){try{await fn();result.push(null);}catch(e){result.push(e.message);}}return result;});
+  expect(errors).toEqual(['Codex imports are available in the GitHub build.','Codex imports are available in the GitHub build.']);
 });

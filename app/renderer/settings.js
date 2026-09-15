@@ -10,6 +10,8 @@ function playAnimation() {const name=$('animation').value;if(!state.settings.mot
 function render(next) {
   state=next;
   const {settings,pets}=state;
+  $('discover').hidden=state.codexImports===false;
+  $('import-builtins').hidden=state.codexImports===false;
   const pet=pets.find(p=>p.id===settings.petId)||pets[0];
   hero.setPet(pet).catch(()=>toast('This sprite image could not be decoded. Try importing another pet.',true));
   hero.motion=settings.motion;

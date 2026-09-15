@@ -18,7 +18,7 @@ let queue = Promise.resolve();
 const enqueue = action => { const result = queue.then(action); queue = result.catch(() => {}); return result; };
 const rendererPath = name => path.join(__dirname, 'renderer', name);
 const selectedPet = () => pets.find(p => p.id === settings.petId) || pets[0];
-const snapshot = () => ({settings, pets, platform: process.platform, version: app.getVersion(), loginAvailable: app.isPackaged && !process.env.PEDEX_DATA_DIR});
+const snapshot = () => ({settings, pets, platform: process.platform, version: app.getVersion(), codexImports: !process.mas, loginAvailable: app.isPackaged && !process.env.PEDEX_DATA_DIR});
 function broadcast() {
   for (const win of [petWindow, settingsWindow]) if (win && !win.isDestroyed()) win.webContents.send('state:changed', snapshot());
   updateTray();
@@ -167,7 +167,8 @@ function configureIPC() {
     return enqueue(() => importPaths(paths));
   });
   handler('pets:import-builtins', settingsOnly, async () => {
-    let archive = process.mas ? null : await findArchive(process.env.PEDEX_CODEX_APP);
+    if(process.mas)throw new Error('Codex imports are available in the GitHub build.');
+    let archive = await findArchive(process.env.PEDEX_CODEX_APP);
     if (!archive) {
       const result = await dialog.showOpenDialog(settingsWindow, {title:'Choose the installed ChatGPT or Codex app', properties:['openFile','openDirectory'], defaultPath:process.platform === 'darwin' ? '/Applications' : undefined});
       if(result.canceled)return [];
@@ -185,12 +186,8 @@ function configureIPC() {
     });
   });
   handler('pets:discover', settingsOnly, () => enqueue(async () => {
-    let home = process.env.PEDEX_CODEX_HOME || process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
-    if(process.mas){
-      const choice=await dialog.showOpenDialog(settingsWindow,{title:'Choose your .codex folder',properties:['openDirectory','showHiddenFiles']});
-      if(choice.canceled)return {found:0,results:[]};
-      home=choice.filePaths[0];
-    }
+    if(process.mas)throw new Error('Codex imports are available in the GitHub build.');
+    const home = process.env.PEDEX_CODEX_HOME || process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
     const found = await library.discover(home);
     return {found: found.length, results: await importPaths(found.map(p => p.source))};
   }));

@@ -41,7 +41,7 @@ Every cell is 192 × 208. Standard rows retain Codex's frame counts and duration
 }
 ```
 
-The sprite sheet must be a static PNG or WebP, smaller than 32 MB, inside the pet folder. ZIPs must contain exactly one manifest. File paths and decoded image dimensions are validated. Miso is original vector artwork included with Pedex; imported artwork remains subject to its own license. Codex built-in artwork is not bundled. **Built-in pets** copies compatible atlases from your installed ChatGPT / Codex app. If the app is not detected, select its application bundle, installation folder, or app.asar. The Mac App Store build always asks you to select the source app or .codex folder so macOS can grant access.
+The sprite sheet must be a static PNG or WebP, smaller than 32 MB, inside the pet folder. ZIPs must contain exactly one manifest. File paths and decoded image dimensions are validated. Miso is original vector artwork included with Pedex; imported artwork remains subject to its own license. Codex built-in artwork is not bundled. **Built-in pets** copies compatible atlases from your installed ChatGPT / Codex app. If the app is not detected, select its application bundle, installation folder, or app.asar. Codex discovery and built-in pet imports are available in the GitHub build. The Mac App Store build supports only user-selected pet files and folders.
 
 ## Simple settings
 
