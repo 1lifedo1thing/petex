@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('pedex', {
   updateSettings: patch => invoke('settings:update', patch),
   importPet: kind => invoke('pets:import-dialog', kind),
   importDropped: files => invoke('pets:import-dropped', Array.from(files).map(file => webUtils.getPathForFile(file)).filter(Boolean)),
+  importBuiltins: () => invoke('pets:import-builtins'),
   discoverPets: () => invoke('pets:discover'),
   removePet: id => invoke('pets:remove', id),
   home: () => invoke('pet:home'),

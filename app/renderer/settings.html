@@ -11,11 +11,11 @@
   <section class="selected-pet" aria-label="Selected pet">
     <canvas id="hero-pet" aria-label="Selected pet preview"></canvas>
     <div class="selected-details"><h1 id="pet-name">Miso</h1><p id="presence">Visible on desktop</p>
-      <div class="animation-controls"><select id="animation" aria-label="Animation"></select><button id="play">Play</button></div>
+      <div class="animation-controls"><select id="animation" aria-label="Animation"></select><button id="play">Play</button><button id="delete-pet" hidden>Delete</button></div>
     </div>
   </section>
   <section aria-labelledby="collection-title">
-    <div class="section-heading"><h2 id="collection-title">Pets <span id="pet-count">1</span></h2><button id="discover" class="text-button">Import from Codex</button></div>
+    <div class="section-heading"><h2 id="collection-title">Pets <span id="pet-count">1</span></h2><div class="footer-links"><button id="import-builtins" class="text-button">Built-in pets</button><button id="discover" class="text-button">Import from Codex</button></div></div>
     <div class="pet-list" id="pet-list" aria-label="Choose a pet"></div>
     <div class="import-note">Drop a pet folder or <button id="import-file" class="text-button">import a file</button><span>ZIP · JSON · PNG · WebP</span></div>
   </section>

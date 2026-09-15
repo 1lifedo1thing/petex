@@ -109,6 +109,10 @@ class Library {
   }
   async import(input) {
     const {manifest, bytes} = await readPackage(input);
+    return this.importSprite(manifest, bytes);
+  }
+  async importSprite(manifest, bytes) {
+    manifest = parseManifest(Buffer.from(JSON.stringify(manifest)));
     const ext = await validateSprite(bytes, manifest.spriteVersionNumber);
     const fingerprint = crypto.createHash('sha256').update(bytes).digest('hex');
     const existing = (await this.list()).find(p => p.fingerprint === fingerprint);

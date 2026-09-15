@@ -4,6 +4,7 @@ const os = require('node:os');
 const fs = require('node:fs/promises');
 const { pathToFileURL } = require('node:url');
 const { Library, normalizeSettings } = require('./library.cjs');
+const {findArchive, readBuiltins} = require('./codex-builtins.cjs');
 const { DragTracker } = require('./drag.cjs');
 
 if (process.env.PEDEX_DATA_DIR) app.setPath('userData', process.env.PEDEX_DATA_DIR);
@@ -165,8 +166,32 @@ function configureIPC() {
     if (!Array.isArray(paths) || paths.some(p => typeof p !== 'string')) throw new Error('Drop a pet folder or file.');
     return enqueue(() => importPaths(paths));
   });
+  handler('pets:import-builtins', settingsOnly, async () => {
+    let archive = process.mas ? null : await findArchive(process.env.PEDEX_CODEX_APP);
+    if (!archive) {
+      const result = await dialog.showOpenDialog(settingsWindow, {title:'Choose the installed ChatGPT or Codex app', properties:['openFile','openDirectory'], defaultPath:process.platform === 'darwin' ? '/Applications' : undefined});
+      if(result.canceled)return [];
+      archive = await findArchive(result.filePaths[0]);
+      if(!archive)throw new Error('Choose the ChatGPT or Codex app, its installation folder, or app.asar.');
+    }
+    const builtins = await readBuiltins(archive);
+    return enqueue(async () => {
+      const results=[];
+      for(const {manifest,bytes} of builtins)results.push({...await library.importSprite(manifest,bytes),source:manifest.displayName});
+      pets=await library.list();
+      const added=results.find(r=>!r.duplicate);
+      if(added){settings.petId=added.pet.id;settings.visible=true;}
+      applySettings();await library.saveSettings(settings);return results;
+    });
+  });
   handler('pets:discover', settingsOnly, () => enqueue(async () => {
-    const found = await library.discover(process.env.PEDEX_CODEX_HOME || process.env.CODEX_HOME || path.join(os.homedir(), '.codex'));
+    let home = process.env.PEDEX_CODEX_HOME || process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
+    if(process.mas){
+      const choice=await dialog.showOpenDialog(settingsWindow,{title:'Choose your .codex folder',properties:['openDirectory','showHiddenFiles']});
+      if(choice.canceled)return {found:0,results:[]};
+      home=choice.filePaths[0];
+    }
+    const found = await library.discover(home);
     return {found: found.length, results: await importPaths(found.map(p => p.source))};
   }));
   handler('pets:remove', settingsOnly, id => enqueue(async () => {

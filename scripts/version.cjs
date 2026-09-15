@@ -1,0 +1,11 @@
+const fs=require('node:fs');const {execFileSync}=require('node:child_process');
+const metadata=JSON.parse(fs.readFileSync('package.json','utf8'));
+const [major,minor]=metadata.version.split('.');
+const height=execFileSync('git',['rev-list','--count','HEAD'],{encoding:'utf8'}).trim();
+if(!/^\d+$/.test(height))throw new Error('Cannot determine Git commit height.');
+if(execFileSync('git',['rev-parse','--is-shallow-repository'],{encoding:'utf8'}).trim()==='true')throw new Error('Full Git history is required for release versions.');
+const version=`${major}.${minor}.${height}`;
+metadata.version=version;fs.writeFileSync('package.json',JSON.stringify(metadata,null,2)+'\n');
+const lock=JSON.parse(fs.readFileSync('package-lock.json','utf8'));lock.version=version;lock.packages[''].version=version;fs.writeFileSync('package-lock.json',JSON.stringify(lock,null,2)+'\n');
+console.log(version);
+if(process.env.GITHUB_OUTPUT)fs.appendFileSync(process.env.GITHUB_OUTPUT,`version=${version}\n`);

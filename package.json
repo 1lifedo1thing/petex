@@ -1,6 +1,6 @@
 {
   "name": "pedex",
-  "version": "0.1.4",
+  "version": "1.0.0",
   "private": true,
   "description": "Desktop pets for macOS and Windows.",
   "main": "app/main.cjs",
@@ -17,7 +17,9 @@
     "dist:win": "electron-builder --win nsis --x64 --publish never",
     "icons": "node scripts/icons.cjs",
     "verify:package": "node scripts/verify-package.cjs",
-    "test:packaged": "node scripts/test-package.cjs"
+    "test:packaged": "node scripts/test-package.cjs",
+    "dist:mas": "electron-builder --mac mas --arm64 --publish never",
+    "version:ci": "node scripts/version.cjs"
   },
   "build": {
     "appId": "app.pedex.desktop",
@@ -28,7 +30,8 @@
       "package.json",
       "LICENSE",
       "NOTICE",
-      "README.md"
+      "README.md",
+      "PRIVACY.md"
     ],
     "directories": {
       "output": "release",
@@ -60,7 +63,22 @@
       "**/node_modules/sharp/**/*",
       "**/node_modules/@img/**/*"
     ],
-    "beforePack": "scripts/before-pack.cjs"
+    "beforePack": "scripts/before-pack.cjs",
+    "mas": {
+      "appId": "ad.neko.petex",
+      "identity": "Kitta Ltd (7P8CLHDH5G)",
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+      "hardenedRuntime": false,
+      "artifactName": "Pedex-${version}-mas-${arch}.${ext}",
+      "extendInfo": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationCategoryType": "public.app-category.entertainment"
+      }
+    },
+    "electronLanguages": [
+      "en-US"
+    ]
   },
   "dependencies": {
     "adm-zip": "^0.6.1",

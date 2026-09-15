@@ -39,10 +39,14 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - name: Set version from commit height
+        run: node scripts/version.cjs
       - name: Install dependencies
         run: npm ci
       - name: Check source and unit tests
@@ -71,3 +75,31 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
           retention-days: 7
+  release:
+    name: Publish release
+    needs: package
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: Pedex-*
+          path: release
+          merge-multiple: true
+      - name: Set version from commit height
+        run: node scripts/version.cjs
+      - name: Publish this version once
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_COMMIT: ${{ github.sha }}
+          RELEASE_REF: ${{ github.ref }}
+        run: node scripts/release.cjs

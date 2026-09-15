@@ -1,4 +1,5 @@
 const {test,expect,_electron:electron}=require('@playwright/test');
+const asar=require('@electron/asar');
 const fs=require('node:fs/promises');const path=require('node:path');const os=require('node:os');const sharp=require('sharp');
 let application,settingsPage,petPage,root;
 test.beforeEach(async()=>{
@@ -13,7 +14,10 @@ test.beforeEach(async()=>{
   await fs.writeFile(path.join(fixture,'spritesheet.webp'),atlas);await fs.writeFile(path.join(fixture,'pet.json'),JSON.stringify({displayName:'Sunny test pet',spriteVersionNumber:2,spritesheetPath:'spritesheet.webp'}));
   await fs.mkdir(path.join(root,'data'),{recursive:true});
   await fs.writeFile(path.join(root,'data','settings.json'),JSON.stringify({followCursor:false}));
-  application=await electron.launch({...(process.env.PEDEX_EXECUTABLE ? {executablePath:process.env.PEDEX_EXECUTABLE,args:[]} : {args:[path.join(__dirname,'../..')]}),env:{...process.env,PEDEX_DATA_DIR:path.join(root,'data'),PEDEX_CODEX_HOME:path.join(root,'codex')}});
+  const appAssets=path.join(root,'codex-app','webview','assets');await fs.mkdir(appAssets,{recursive:true});
+  await fs.writeFile(path.join(appAssets,'dewey-spritesheet-v5-fixture.webp'),atlas);
+  const codexArchive=path.join(root,'app.asar');await asar.createPackage(path.join(root,'codex-app'),codexArchive);
+  application=await electron.launch({...(process.env.PEDEX_EXECUTABLE ? {executablePath:process.env.PEDEX_EXECUTABLE,args:[]} : {args:[path.join(__dirname,'../..')]}),env:{...process.env,PEDEX_CODEX_APP:codexArchive,PEDEX_DATA_DIR:path.join(root,'data'),PEDEX_CODEX_HOME:path.join(root,'codex')}});
   await expect.poll(async()=>application.windows().length).toBe(2);
   settingsPage=application.windows().find(p=>p.url().endsWith('settings.html'));petPage=application.windows().find(p=>p.url().endsWith('pet.html'));
   await expect(settingsPage.locator('h1')).toHaveText('Miso');
@@ -146,4 +150,26 @@ test('GitHub link opens the project repository in the external browser',async()=
   await application.evaluate(({shell})=>{shell.openExternal=async url=>{globalThis.openedRepository=url;};});
   await settingsPage.getByRole('link',{name:'GitHub',exact:true}).click();
   await expect.poll(()=>application.evaluate(()=>globalThis.openedRepository)).toBe('https://github.com/iebb/petex');
+});
+
+
+test('imports built-in pets and deletes their local copies with the visible button',async()=>{
+  await expect(settingsPage.getByRole('button',{name:'Delete',exact:true})).toBeHidden();
+  await settingsPage.getByRole('button',{name:'Built-in pets',exact:true}).click();
+  await expect(settingsPage.getByRole('button',{name:'Choose Dewey'})).toHaveAttribute('aria-pressed','true');
+  await expect.poll(desktopPixel).toEqual([25,160,210,255]);
+  await settingsPage.getByRole('button',{name:'Built-in pets',exact:true}).click();
+  await expect(settingsPage.locator('#pet-count')).toHaveText('2');
+  await application.evaluate(({dialog})=>{globalThis.deleteDialogs=0;dialog.showMessageBox=async()=>{globalThis.deleteDialogs++;return {response:0};};});
+  await settingsPage.getByRole('button',{name:'Delete',exact:true}).click();
+  await expect.poll(()=>application.evaluate(()=>globalThis.deleteDialogs)).toBe(1);
+  await expect(settingsPage.locator('#pet-count')).toHaveText('2');
+  await application.evaluate(({dialog})=>{dialog.showMessageBox=async()=>({response:1});});
+  await settingsPage.getByRole('button',{name:'Delete',exact:true}).click();
+  await expect(settingsPage.locator('#pet-count')).toHaveText('1');
+  await expect(settingsPage.locator('h1')).toHaveText('Miso');
+  expect(await fs.readdir(path.join(root,'data','pets'))).toEqual([]);
+  await fs.access(path.join(root,'app.asar'));
+  await settingsPage.getByRole('button',{name:'Built-in pets',exact:true}).click();
+  await expect(settingsPage.locator('h1')).toHaveText('Dewey');
 });

@@ -14,6 +14,7 @@ function render(next) {
   hero.setPet(pet).catch(()=>toast('This sprite image could not be decoded. Try importing another pet.',true));
   hero.motion=settings.motion;
   $('pet-name').textContent=pet.displayName;
+  $('delete-pet').hidden=!!pet.builtin;
   const animations=availableAnimations(pet);
   if($('animation').dataset.petId!==pet.id){
     $('animation').dataset.petId=pet.id;
@@ -64,6 +65,8 @@ function importMessage(results){
   else if(duplicates)toast('Already imported.');
 }
 async function importPets(kind){if(busy)return;busy=true;try{importMessage(await run(()=>api.importPet(kind)));}finally{busy=false;}}
+$('delete-pet').onclick=()=>run(()=>api.removePet(state.settings.petId));
+$('import-builtins').onclick=async()=>{if(busy)return;busy=true;$('import-builtins').disabled=true;try{importMessage(await run(()=>api.importBuiltins()));}finally{busy=false;$('import-builtins').disabled=false;}};
 $('import-file').onclick=()=>importPets('file');
 $('discover').onclick=async()=>{
   if(busy)return;busy=true;$('discover').disabled=true;
